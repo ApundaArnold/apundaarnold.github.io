@@ -1,63 +1,63 @@
+  // Initialize Firebase
+  var config = {
+    apiKey: "AIzaSyCt_jXfC39T5ZN6ov1gOECJz1AYk1tio5s",
+    authDomain: "contactform-755f1.firebaseapp.com",
+    databaseURL: "https://contactform-755f1.firebaseio.com",
+    projectId: "contactform-755f1",
+    storageBucket: "",
+    messagingSenderId: "776387395316"
+  };
+  firebase.initializeApp(config);
 
-$(function()
-{
-    function after_form_submitted(data) 
-    {
-        if(data.result == 'success')
-        {
-            $('form#reused_form').hide();
-            $('#success_message').show();
-            $('#error_message').hide();
-        }
-        else
-        {
-            $('#error_message').append('<ul></ul>');
 
-            jQuery.each(data.errors,function(key,val)
-            {
-                $('#error_message ul').append('<li>'+key+':'+val+'</li>');
-            });
-            $('#success_message').hide();
-            $('#error_message').show();
+// Reference messages collection
+var messagesRef = firebase.database().ref('messages');
 
-            //reverse the response on the button
-            $('button[type="button"]', $form).each(function()
-            {
-                $btn = $(this);
-                label = $btn.prop('orig_label');
-                if(label)
-                {
-                    $btn.prop('type','submit' ); 
-                    $btn.text(label);
-                    $btn.prop('orig_label','');
-                }
-            });
-            
-        }//else
-    }
+// Listen for form submit
+document.getElementById('contactForm').addEventListener('submit', submitForm);
 
-	$('#reused_form').submit(function(e)
-      {
-        e.preventDefault();
+// Submit form
+function submitForm(e){
+    e.preventDefault();
 
-        $form = $(this);
-        //show some response on the button
-        $('button[type="submit"]', $form).each(function()
-        {
-            $btn = $(this);
-            $btn.prop('type','button' ); 
-            $btn.prop('orig_label',$btn.text());
-            $btn.text('Sending ...');
-        });
+    // Get values
+    // Remember to add all the values in your contact form here
+    var name = getInputVal('name');
+    //var company = getInputVal('company');
+    var email = getInputVal('email');
+    //var phone = getInputVal('phone');
+    var message = getInputVal('message');
+
+    // Save message
+    // Remember to add all variable declared above here
+    saveMessage(name, email, message);
+
+    // Show alert
+    document.querySelector('.alert').style.display = 'block';
+
+    // Hide alert after 3 seconds
+    //Remember to add some CSS to that
+    setTimeout(function(){
+        document.querySelector('.alert').style.display = 'none';
+    },3000);
+
+    // Clear form - delete form data after submit
+    document.getElementById('contactForm').reset();
+}
+
+// Function to get form values
+function getInputVal(id){
+    return document.getElementById(id).value;
+}
+
+// Save message to firebase function
+function saveMessage(name, company, email, phone, message){
+    var newMessageRef = messagesRef.push();
+    newMessageRef.set({
+        name: name,
         
-
-                    $.ajax({
-                type: "POST",
-                url: 'handler.php',
-                data: $form.serialize(),
-                success: after_form_submitted,
-                dataType: 'json' 
-            });        
-        
-      });	
-});
+        email:email,
+       
+        message:message,
+    });
+}
